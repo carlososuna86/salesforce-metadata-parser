@@ -25,7 +25,7 @@ setup(
     ],
     entry_points={
         "console_scripts": [
-            "salesforce-metadata-parser=salesforce_metadata_parser.main:main",
+            "salesforce-metadata-parser=salesforce_metadata_parser.main:cli",
         ],
     },
 )
