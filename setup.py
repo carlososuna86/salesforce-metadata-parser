@@ -6,12 +6,12 @@ with open("README.md", "r", encoding="utf-8") as fh:
 setup(
     name="salesforce-metadata-parser",
     version="0.1.0",
-    author="Your Name",
-    author_email="your.email@example.com",
+    author="Carlos Augusto Osuna",
+    author_email="carlososuna86@gmail.com",
     description="A Python CLI tool for parsing Salesforce metadata files",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="https://github.com/yourusername/salesforce-metadata-parser",
+    url="https://github.com/carlososuna86/salesforce-metadata-parser",
     packages=find_packages(where="src"),
     package_dir={"": "src"},
     classifiers=[
