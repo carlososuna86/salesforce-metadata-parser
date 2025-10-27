@@ -5,6 +5,7 @@ import time
 
 default_config = {
     "version": 1,
+    "disable_existing_loggers": False,
     "formatters": {
         "simpleFormatter": {
             "format": "%(levelname)-5s|%(message)s",
