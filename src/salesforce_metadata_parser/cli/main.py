@@ -1,9 +1,17 @@
 import click
+import logging
+
+from ..logging.config import configure_root_logger
+
+logger = None
 
 @click.group()
 def cli():
     """Salesforce Metadata Parser - A CLI tool for parsing Salesforce metadata files."""
-    pass
+    global logger
+
+    configure_root_logger()
+    logger = logging.getLogger(__name__)
 
 @cli.command()
 def version():
