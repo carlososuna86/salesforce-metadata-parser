@@ -154,3 +154,15 @@ def clone_prompt(obj: dict, api_suffix: str, label_suffix: str):
     metadata.masterLabel = newLabel
 
     obj["metadata"] = metadata
+
+
+@prompt_template.command()
+@click.option('--status', 'status', type=click.STRING)
+@click.pass_obj
+def set_status(obj: dict, status: str):
+    """Set the status of the last Version"""
+    metadata: GenAiPromptTemplate = obj["metadata"]
+
+    metadata.templateVersions[-1].status = status
+
+    obj["metadata"] = metadata
