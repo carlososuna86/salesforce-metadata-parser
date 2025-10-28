@@ -26,7 +26,7 @@ def prompt_template(ctx):
 @prompt_template.command()
 @click.option('--source-file', 'source_file', type=click.Path(exists=True))
 @click.pass_obj
-def parse(obj: dict, source_file: str):
+def load_prompt(obj: dict, source_file: str):
     """Parse a Salesforce metadata file."""
 
     logger.debug(f"obj: {obj}")
@@ -111,7 +111,7 @@ def new_version(obj: dict):
 @prompt_template.command()
 @click.option("--target-file", "target_file", type=click.Path(exists=False, writable=True))
 @click.pass_obj
-def save(obj: dict, target_file: str):
+def save_prompt(obj: dict, target_file: str):
     """Saves the manipulated Metadata into a new file"""
 
     logger.debug(f"obj: {obj}")
@@ -125,11 +125,11 @@ def save(obj: dict, target_file: str):
 @click.option('--source-file', 'source_file', type=click.Path(exists=True))
 @click.option("--target-file", "target_file", type=click.Path(exists=False, writable=True))
 @click.pass_obj
-def copy(obj: dict, source_file: str, target_file: str):
+def copy_prompt(obj: dict, source_file: str, target_file: str):
 
     logger.debug(f"obj: {obj}")
     logger.debug(f"source_file: {target_file}")
     logger.debug(f"target_file: {target_file}")
 
-    parse(obj, source_file)
-    save(obj, target_file)
+    load_prompt(obj, source_file)
+    save_prompt(obj, target_file)
