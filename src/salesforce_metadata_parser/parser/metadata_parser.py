@@ -261,6 +261,7 @@ class XmlParser:
 
     @staticmethod
     def to_xml_string(metadata: Metadata) -> str:
+        assert metadata is not None, "Metadata not provided"
 
         # Create the root Node
         private_dict = XmlParser._get_invisible_dict(metadata)
@@ -280,6 +281,8 @@ class XmlParser:
 
     @staticmethod
     def to_xml_file(metadata: Metadata, xml_file_name: str) -> None:
+        assert metadata is not None, "Metadata not provided"
+
         content = XmlParser.to_xml_string(metadata)
         assert isinstance(content, str), f"Wrong type for content: {type(content)}"
         assert xml_file_name is not None, f"xml_file_name is NULL"

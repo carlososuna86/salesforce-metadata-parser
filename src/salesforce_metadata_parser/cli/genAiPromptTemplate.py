@@ -53,6 +53,28 @@ class PromptTemplateHelper:
 
         return f"{id}=_{num}"
 
+    @staticmethod
+    def clone_prompt(metadata: GenAiPromptTemplate, api_suffix: str, label_suffix: str):
+        # Rename based on convention
+        new_metadata = copy.deepcopy(metadata)
+
+        # Update naming
+        newApiName =  f"{new_metadata.developerName}_{api_suffix}"
+        newLabel = f"{new_metadata.masterLabel} {label_suffix}"
+        logger.debug(f'ApiName: "{new_metadata.developerName}" -> "{newApiName}"')
+        logger.debug(f'Label: "{new_metadata.masterLabel}" -> "{newLabel}"')
+        new_metadata.developerName = newApiName
+        new_metadata.masterLabel = newLabel
+
+        new_metadata = PromptTemplateHelper.filter_last_version(new_metadata)
+
+        # Strip version, it will be pulled after first deployment
+        new_metadata.activeVersionIdentifier = None
+        new_metadata.templateVersions[0].versionIdentifier = None
+
+        return new_metadata
+
+    @staticmethod
     def create_new_version(metadata: GenAiPromptTemplate) -> GenAiPromptTemplate:
         count = len(metadata.templateVersions)
         if count == 0:
@@ -67,11 +89,6 @@ class PromptTemplateHelper:
 
         logger.info(f"Creating new Version: {newVersion.versionIdentifier}")
         metadata.templateVersions.append(new_version)
-
-
-    @staticmethod
-    def set_single_version(metadata: GenAiPromptTemplate) -> GenAiPromptTemplate:
-        return metadata
 
 
     @staticmethod
@@ -116,16 +133,16 @@ class PromptTemplateHelper:
 
 
     @staticmethod
-    def filter_last_version(metadata: GenAiPromptTemplate):
+    def filter_last_version(metadata: GenAiPromptTemplate) -> GenAiPromptTemplate:
         # return PromptTemplateHelper.filter_last_n_versions(metadata, 1)
 
         count = len(metadata.templateVersions)
         if count == 0:
             logger.warning(f"No Template Versions found")
-            return
+            return metadata
         elif count == 1:
             logger.info("Only one Template Version found. No action taken")
-            return
+            return metadata
 
         lastVersion = metadata.templateVersions[-1]
         logger.info(f"Selecting Last Version: {lastVersion.versionIdentifier}")
@@ -168,6 +185,8 @@ class PromptTemplateHelper:
 
     @staticmethod
     def save_prompt_to_api_name(metadata: GenAiPromptTemplate, api_name: str, variant: str = None):
+        assert metadata is not None, "Metadata not provided"
+
         target_file = PromptTemplateHelper._generate_default_prompt_template_path(api_name, variant)
         
         XmlParser.to_xml_file(metadata, target_file)
@@ -208,6 +227,7 @@ def load_prompt(obj: dict, source_file: str = None, api_name: str = None, varian
     else:
         metadata = PromptTemplateHelper.load_prompt_from_api_name(api_name, variant)
 
+    assert metadata is not None
     obj["metadata"] = metadata
 
 
@@ -218,6 +238,7 @@ def filter_active_version(obj: dict):
 
     metadata = PromptTemplateHelper.filter_active_version(metadata)
 
+    assert metadata is not None
     obj["metadata"] = metadata
 
 
@@ -228,6 +249,7 @@ def filter_last_version(obj: dict):
 
     metadata = PromptTemplateHelper.filter_last_version(metadata)
 
+    assert metadata is not None
     obj["metadata"] = metadata
 
 
@@ -239,6 +261,7 @@ def last_n_versions(obj: dict, count: int):
 
     metadata = PromptTemplateHelper.filter_last_n_versions(metadata, count)
 
+    assert metadata is not None
     obj["metadata"] = metadata
 
 
@@ -246,9 +269,11 @@ def last_n_versions(obj: dict, count: int):
 @click.pass_obj
 def new_version(obj: dict):
     metadata: GenAiPromptTemplate = obj["metadata"]
+    assert metadata is not None, "Metadata not provided in the context"
 
     PromptTemplateHelper.create_new_version(metadata)
 
+    assert metadata is not None
     obj["metadata"] = metadata
 
 
@@ -260,6 +285,7 @@ def new_version(obj: dict):
 def save_prompt(obj: dict, target_file: str = None, api_name: str = None, variant: str = None):
     """Saves the manipulated Metadata into a new file"""
     metadata: GenAiPromptTemplate = obj["metadata"]
+    assert metadata is not None, "Metadata not provided in the context"
 
     if target_file:
         PromptTemplateHelper.save_prompt_to_file(metadata, target_file)
@@ -292,8 +318,9 @@ def copy_prompt(obj: dict, source_file: str, target_file: str):
 def clone_prompt(obj: dict, api_suffix: str, label_suffix: str):
     metadata: GenAiPromptTemplate = obj["metadata"]
 
+    metadata = PromptTemplateHelper.clone_prompt(metadata, api_suffix, label_suffix)
 
-
+    assert metadata is not None
     obj["metadata"] = metadata
 
 
@@ -306,4 +333,5 @@ def set_status(obj: dict, status: str):
 
     metadata.templateVersions[-1].status = status
 
+    assert metadata is not None
     obj["metadata"] = metadata
