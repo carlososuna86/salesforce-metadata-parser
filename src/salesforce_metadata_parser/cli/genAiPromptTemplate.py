@@ -1,5 +1,7 @@
 # Standard Library imports
+import copy
 import logging
+import re
 
 # Dependency imports
 import click
@@ -14,6 +16,22 @@ classes = {
     "genAiPromptTemplate": GenAiPromptTemplate
 }
 
+
+def _generate_default_prompt_template_path(api_name: str):
+    return f"force-app/main/default/genAiPromptTemplates/{api_name}.genAiPromptTemplate-meta.xml"
+
+
+def _increment_version_identifier(version_id: str):
+    m = re.match(r"(?P<versionId>.*)=_(?P<versionNumber>\d+)", version_id)
+    if m:
+        id = m.group("versionId")
+        num = int(m.group("versionNumber")) + 1
+        return f"{id}=_{num}"
+    
+    logging.warning(f"Unexpected versionIdentifier format: {version_id}")
+    return version_id
+
+
 @click.group(chain=True)
 @click.pass_context
 def prompt_template(ctx):
@@ -24,13 +42,19 @@ def prompt_template(ctx):
 
 
 @prompt_template.command()
-@click.option('--source-file', 'source_file', type=click.Path(exists=True))
+@click.option('--source-file', 'source_file', type=click.Path(exists=False))
+@click.option('--api-name', 'api_name', type=click.STRING)
 @click.pass_obj
-def load_prompt(obj: dict, source_file: str):
+def load_prompt(obj: dict, source_file: str, api_name: str):
     """Parse a Salesforce metadata file."""
 
-    logger.debug(f"obj: {obj}")
-    logger.debug(f"source_file: {source_file}")
+    if source_file is None:
+        if not api_name is None:
+            source_file = _generate_default_prompt_template_path(api_name)
+
+    if source_file is None:
+        logger.error("source file or api name not provided")
+        raise ValueError()
 
     click.echo(f"Parsing metadata file: {source_file}")
     metadata = XmlParser.from_xml_file(source_file, classes=classes)
