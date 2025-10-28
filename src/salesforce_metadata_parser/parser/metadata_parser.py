@@ -282,6 +282,7 @@ class XmlParser:
     def to_xml_file(metadata: Metadata, xml_file_name: str) -> None:
         content = XmlParser.to_xml_string(metadata)
         assert isinstance(content, str), f"Wrong type for content: {type(content)}"
+        assert xml_file_name is not None, f"xml_file_name is NULL"
 
         with open(xml_file_name, "w", encoding="utf-8") as xml_file:
             logger.info(f"Writing Metadata to: {xml_file_name}")
