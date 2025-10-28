@@ -133,3 +133,24 @@ def copy_prompt(obj: dict, source_file: str, target_file: str):
 
     load_prompt(obj, source_file)
     save_prompt(obj, target_file)
+
+
+@prompt_template.command()
+@click.option('--api-suffix', 'api_suffix', type=click.STRING)
+@click.option('--label-suffix', 'label_suffix', type=click.STRING)
+@click.pass_obj
+def clone_prompt(obj: dict, api_suffix: str, label_suffix: str):
+    metadata: GenAiPromptTemplate = obj["metadata"]
+
+    # Remove the overrideSource
+    metadata.overrideSource = None
+
+    # Rename based on convention
+    newApiName =  f"{metadata.developerName}_{api_suffix}"
+    newLabel = f"{metadata.masterLabel} {label_suffix}"
+    logger.debug(f'ApiName: "{metadata.developerName}" -> "{newApiName}"')
+    logger.debug(f'Label: "{metadata.masterLabel}" -> "{newLabel}"')
+    metadata.developerName = newApiName
+    metadata.masterLabel = newLabel
+
+    obj["metadata"] = metadata
