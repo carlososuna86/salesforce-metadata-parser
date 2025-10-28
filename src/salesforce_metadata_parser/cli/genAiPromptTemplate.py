@@ -86,6 +86,29 @@ def last_version(obj: dict):
 
 
 @prompt_template.command()
+@click.pass_obj
+def new_version(obj: dict):
+    metadata: GenAiPromptTemplate = obj["metadata"]
+
+    count = len(metadata.templateVersions)
+    if count == 0:
+        logger.warning(f"No Template Versions found")
+        return
+
+    lastVersion = metadata.templateVersions[-1]
+    newVersion = copy.deepcopy(lastVersion)
+    newVersion.status = "Draft"
+    if lastVersion.versionIdentifier:
+        newVersion.versionIdentifier = _increment_version_identifier(lastVersion.versionIdentifier)
+
+    logger.info(f"Creating new Version: {newVersion.versionIdentifier}")
+    metadata.templateVersions.append(new_version)
+    
+
+    obj["metadata"] = metadata
+
+
+@prompt_template.command()
 @click.option("--target-file", "target_file", type=click.Path(exists=False, writable=True))
 @click.pass_obj
 def save(obj: dict, target_file: str):
