@@ -197,9 +197,7 @@ class XmlParser:
         # Pretty print the XML
         logger.debug(f"begin: {rough_string[ : 200]}")
         logger.debug(f"end: {rough_string[-200 : ]}")
-        # print(rough_string)
         reparsed = xml.dom.minidom.parseString(rough_string)
-        # logger.debug(f"reparsed: {reparsed.__dict__}")
 
         pretty_string = reparsed.toprettyxml(
             indent=indent,
@@ -211,6 +209,8 @@ class XmlParser:
             pretty_string = XmlParser._encode_string(pretty_string, xml_declaration)
 
         pretty_string = XmlParser._unescape_double_entities(pretty_string)
+        logger.debug(f"begin: {pretty_string[ : 200]}")
+        logger.debug(f"end: {pretty_string[-200 : ]}")
 
         return pretty_string
 
