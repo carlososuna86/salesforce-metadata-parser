@@ -1,0 +1,112 @@
+# Standard Library imports
+import logging
+
+# Dependency imports
+import click
+
+# Project imports
+from salesforce_metadata_parser.parser.metadata_parser import XmlParser
+from salesforce_metadata_parser.metadata.genaiprompttemplate import GenAiPromptTemplate
+
+logger = logging.getLogger(__name__)
+
+classes = {
+    "genAiPromptTemplate": GenAiPromptTemplate
+}
+
+@click.group(chain=True)
+@click.pass_context
+def prompt_template(ctx):
+    logger.debug("Group: Prompt Template")
+    if ctx.obj is None:
+        ctx.obj = dict()
+    pass
+
+
+@prompt_template.command()
+@click.option('--source-file', 'source_file', type=click.Path(exists=True))
+@click.pass_obj
+def parse(obj: dict, source_file: str):
+    """Parse a Salesforce metadata file."""
+
+    logger.debug(f"obj: {obj}")
+    logger.debug(f"source_file: {source_file}")
+
+    click.echo(f"Parsing metadata file: {source_file}")
+    metadata = XmlParser.from_xml_file(source_file, classes=classes)
+    obj["metadata"] = metadata
+
+
+@prompt_template.command()
+@click.pass_obj
+def active_version(obj: dict):
+    metadata: GenAiPromptTemplate = obj["metadata"]
+
+    if metadata.activeVersionIdentifier is None:
+        logger.warning(f"Prompt Template has no Active version")
+        return
+
+    activeVersion = None
+    logger.debug(f"Searching version: {metadata.activeVersionIdentifier}")
+    for version in metadata.templateVersions:
+        logger.debug(f"VersionId: {version.versionIdentifier}")
+
+        if version.versionIdentifier == metadata.activeVersionIdentifier:
+            activeVersion = version
+            break
+
+    if activeVersion is not None:
+        logger.info(f"Selecting ActiveVersionId: {activeVersion.versionIdentifier}")
+        metadata.templateVersions = [ activeVersion ]
+    else:
+        logger.warning(f"Active version not found")
+
+    obj["metadata"] = metadata
+
+
+@prompt_template.command()
+@click.pass_obj
+def last_version(obj: dict):
+    metadata: GenAiPromptTemplate = obj["metadata"]
+
+    count = len(metadata.templateVersions)
+    if count == 0:
+        logger.warning(f"No Template Versions found")
+        return
+    elif count == 1:
+        logger.info("Only one Template Version found. No action taken")
+        return
+
+    lastVersion = metadata.templateVersions[-1]
+    logger.info(f"Selecting Last Version: {lastVersion.versionIdentifier}")
+    metadata.templateVersions = [ lastVersion ]
+    metadata.activeVersionIdentifier = lastVersion.versionIdentifier
+
+    obj["metadata"] = metadata
+
+
+@prompt_template.command()
+@click.option("--target-file", "target_file", type=click.Path(exists=False, writable=True))
+@click.pass_obj
+def save(obj: dict, target_file: str):
+    """Saves the manipulated Metadata into a new file"""
+
+    logger.debug(f"obj: {obj}")
+    logger.debug(f"target_file: {target_file}")
+
+    click.echo(f"Saving metadata file: {target_file}")
+    XmlParser.to_xml_file(obj["metadata"], target_file)
+
+
+@prompt_template.command()
+@click.option('--source-file', 'source_file', type=click.Path(exists=True))
+@click.option("--target-file", "target_file", type=click.Path(exists=False, writable=True))
+@click.pass_obj
+def copy(obj: dict, source_file: str, target_file: str):
+
+    logger.debug(f"obj: {obj}")
+    logger.debug(f"source_file: {target_file}")
+    logger.debug(f"target_file: {target_file}")
+
+    parse(obj, source_file)
+    save(obj, target_file)

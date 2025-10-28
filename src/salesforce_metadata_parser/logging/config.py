@@ -33,12 +33,15 @@ default_config = {
         }
     },
     "loggers": {
-        "root": {
+        "": {
             "level": "DEBUG",
             "handlers": [
                 "consoleHandler",
                 "fileHandler"
             ]
+        },
+        "salesforce_metadata_parser.parser": {
+            "level": "INFO"
         }
     }
 }

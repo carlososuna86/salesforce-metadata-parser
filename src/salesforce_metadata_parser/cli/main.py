@@ -1,29 +1,42 @@
-import click
+# Standard Library imports
 import logging
 
-from ..logging.config import configure_root_logger
+# Dependency imports
+import click
 
-logger = None
+# Logger configuration
+from salesforce_metadata_parser.logging.config import configure_root_logger
+configure_root_logger()
+logger = logging.getLogger(__name__)
 
-@click.group()
-def cli():
-    """Salesforce Metadata Parser - A CLI tool for parsing Salesforce metadata files."""
-    global logger
+# Other Project imports
+import salesforce_metadata_parser.cli.metadata
+import salesforce_metadata_parser.cli.genAiPromptTemplate
 
-    configure_root_logger()
-    logger = logging.getLogger(__name__)
+# Passes a namespace to store variables
+# it can be used to chain results between commands
+pass_ns = click.make_pass_decorator(dict, ensure=True)
 
-@cli.command()
+@click.command()
+@pass_ns
 def version():
     """Show the version of the parser."""
     click.echo("Salesforce Metadata Parser v0.1.0")
 
-@cli.command()
-@click.argument('input_file', type=click.Path(exists=True))
-def parse(input_file):
-    """Parse a Salesforce metadata file."""
-    click.echo(f"Parsing metadata file: {input_file}")
-    # Implementation will go here
+@click.group()
+@click.pass_context
+def cli(ctx):
+    """Salesforce Metadata Parser - A CLI tool for parsing Salesforce metadata files."""
+    if ctx.obj is None:
+        ctx.obj = dict()
+
+    logger.info("Salesforce Metadata Parser - A CLI tool for parsing Salesforce metadata files.")
+
+# Add commands
+cli.add_command(salesforce_metadata_parser.cli.metadata.metadata)
+cli.add_command(salesforce_metadata_parser.cli.genAiPromptTemplate.prompt_template)
+cli.add_command(version)
+
 
 if __name__ == "__main__":
     cli()
