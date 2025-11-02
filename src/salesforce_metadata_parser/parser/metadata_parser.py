@@ -118,11 +118,11 @@ class XmlParser:
 
             # Instantiate a sub-node
             cls2 = XmlParser._getListSubclass(metadata, child_tag)
-            if cls2:
-                logger.debug(f"sub_class: {type(cls2)} = {cls2.__name__}")
-                metadata2 = cls2()
-            else:
-                metadata2 = XmlNode()
+            if cls2 is None:
+                cls2 = XmlNode
+
+            logger.debug(f"Instantiating Element {child_tag} into {cls2.__name__}")
+            metadata2 = cls2()
 
             if child_tag not in metadata.__dict__.keys():
                 metadata.__dict__[child_tag] = list()
@@ -219,11 +219,11 @@ class XmlParser:
 
         tag = XmlParser._getTagName(root)
         cls = classes.get(tag, Metadata)
-        logger.debug(f"Metadata type: {cls.__name__}")
-        if cls:
-            metadata = cls()
-        else:
-            metadata = Metadata()
+        if cls is None:
+            cls = Metadata
+
+        logger.debug(f"Instantiating Element {tag} into {cls.__name__}")
+        metadata = cls()
 
         metadata._TypeName = tag
 
