@@ -254,6 +254,16 @@ class XmlParser:
 
         return metadata
 
+    @staticmethod
+    def _get_ns(metadata: Metadata) -> str:
+        namespaces = metadata._namespaces
+        if isinstance(namespaces, dict):
+            return namespaces.get("ns", None)
+        elif isinstance(namespaces, dataclasses.Field):
+            return namespaces.default.get("ns", None)
+
+        return None
+
 
     @staticmethod
     def to_xml_string(metadata: Metadata) -> str:
@@ -264,7 +274,7 @@ class XmlParser:
         logger.debug(f"Private: {json.dumps(private_dict, indent=2)}")
         root = ET.Element(metadata._TypeName)
 
-        ns = metadata._namespaces.get("ns", None)
+        ns = XmlParser._get_ns(metadata)        
         if ns:
             root.set('xmlns', ns)
         
