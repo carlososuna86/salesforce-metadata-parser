@@ -83,7 +83,7 @@ class PromptTemplateHelper:
 
         lastVersion = metadata.templateVersions[-1]
         newVersion = copy.deepcopy(lastVersion)
-        newVersion.status = "Draft"
+        newVersion.status = GenAiPromptTemplateStatus.DRAFT
         if lastVersion.versionIdentifier:
             newVersion.versionIdentifier = PromptTemplateHelper._increment_version_identifier(lastVersion.versionIdentifier)
 
