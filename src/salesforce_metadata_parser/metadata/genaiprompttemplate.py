@@ -4,7 +4,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import List, Optional
 
-from .metadata import Metadata, XmlNode
+from .base import XmlNode
+from .metadata import Metadata
 
 # Documentation: https://developer.salesforce.com/docs/atlas.en-us.api_meta.meta/api_meta/meta_genaiprompttemplate.htm
 

@@ -1,7 +1,9 @@
-#!/usr/bin/env python3
-
+# Standard Library imports
 from dataclasses import dataclass, field
-from typing import Any, Optional
+from typing import Optional, Dict
+
+# Project imports
+from .base import XmlRoot
 
 # Salesforce namespace constant
 SFDC_NAMESPACE = 'http://soap.sforce.com/2006/04/metadata'
@@ -10,34 +12,10 @@ SFDC_NAMESPACE = 'http://soap.sforce.com/2006/04/metadata'
 XSI_NAMESPACE = 'http://www.w3.org/2001/XMLSchema-instance'
 
 
-@dataclass(kw_only=True)
-class XmlNode():
-    """Represents an XML Node"""
-
-    _sub_classes: Optional[dict] = field(repr=False, default_factory=lambda: {})
-    """Overwritable field. Tells the Parser which Class to use when creating new instances of list items"""
-
-    def _to_dict(self) -> dict:
-        return { key: value for key, value in self.__dict__ if not key.startswith("_") }
-
-
-@dataclass
-class XmlRoot:
-    """Represents the XML Root node of the Document"""
-
-    _namespaces: Optional[dict] = field(repr=False, default_factory=lambda: {
-        'ns': SFDC_NAMESPACE,
-        # 'xsi': XSI_NAMESPACE,
-    })
-
-    _xml_declaration: Optional[dict] = field(repr=False, default_factory=lambda: {
-        "version": "1.0",
-        "encoding": "UTF-8",
-    })
-
-    _Suffix: Optional[str] = field(repr=False, default=None)
-    _Directory: Optional[str] = field(repr=False, default=None)
-    _TypeName: Optional[str] = field(repr=False, default=None)
+default_namespace = {
+    'ns': SFDC_NAMESPACE,
+    # 'xsi': XSI_NAMESPACE,
+}
 
 
 class Metadata(XmlRoot):
@@ -54,3 +32,5 @@ Metadata is analogous to sObject, which represents all standard objects. Metadat
 
     A namespace prefix is a 1-character to 15-character alphanumeric identifier that distinguishes your package and its contents from other publishers’ packages. For more information, see Create and Register Your Namespace for Second-Generation Managed Packages.
     """
+
+    _namespaces: Optional[Dict] = field(repr=False, default= default_namespace)

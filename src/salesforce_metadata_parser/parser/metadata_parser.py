@@ -1,22 +1,18 @@
-#!/usr/bin/env python3
-
-# from dataclasses import dataclass
+# Standard Library imports
 import dataclasses
 import json
-import importlib
 import logging
 import os
 import re
-import typing
 from typing import Any
 import xml.dom.minidom
 import xml.etree.ElementTree as ET
 from xml.etree.ElementTree import Element
 import xml.sax.saxutils
 
-
-# import xmltodict
-from ..metadata.metadata import XmlNode, XmlRoot, Metadata
+# Project imports
+from ..metadata.base import XmlNode
+from ..metadata.metadata import Metadata
 
 logger = logging.getLogger(__name__)
 

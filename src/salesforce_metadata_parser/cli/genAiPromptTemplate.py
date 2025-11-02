@@ -8,8 +8,10 @@ import re
 import click
 
 # Project imports
-from salesforce_metadata_parser.parser.metadata_parser import XmlParser
-from salesforce_metadata_parser.metadata.genaiprompttemplate import GenAiPromptTemplate
+from ..metadata.base import get_list, get_value
+from ..metadata.base import XmlNode
+from ..metadata.genaiprompttemplate import GenAiPromptTemplate, GenAiPromptTemplateVersion, GenAiPromptTemplateStatus
+from ..parser.metadata_parser import XmlParser
 
 logger = logging.getLogger(__name__)
 
