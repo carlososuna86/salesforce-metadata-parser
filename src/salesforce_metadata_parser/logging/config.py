@@ -59,7 +59,7 @@ def _namer():
     log_dir = "logs"
     os.makedirs(log_dir, exist_ok=True)
 
-    timestamp = time.strftime('%Y-%m-%d_%H-%M-%S')
+    timestamp = time.strftime('%Y-%m-%d_%H-%M')
     log_file = f"salesforce-metadata-parser_{timestamp}.log"
 
     return os.path.join(log_dir, log_file)
